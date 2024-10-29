@@ -1,4 +1,4 @@
-/*! angular-google-maps 2.5.0 2024-10-30
+/*! angular-google-maps 2.5.1 2024-10-30
  *  AngularJS directives for Google Maps
  *  git: https://github.com/angular-ui/angular-google-maps.git
  */
@@ -655,41 +655,41 @@ Nicholas McCready - https://twitter.com/nmccready
         So it is run to manage the state (cancel, skip, link) as needed.
       Purpose:
       The whole point is to check if there is existing async work going on. If so we wait on it.
-
+      
       arguments:
       - existingPiecesObj =  Queue<Promises>
       - sniffedPromise = object wrapper holding a function to a pending (function) promise (promise: fnPromise)
       with its intended type.
       - cancelCb = callback which accepts a string, this string is intended to be returned at the end of _async.each iterator
-
+      
         Where the cancelCb passed msg is 'cancel safe' _async.each will drop out and fall through. Thus canceling the promise
         gracefully without messing up state.
-
+      
       Synopsis:
-
+      
        - Promises have been broken down to 4 states create, update,delete (3 main) and init. (Helps boil down problems in ordering)
-              where (init) is special to indicate that it is one of the first or to allow a create promise to work beyond being after a delete
-
+        where (init) is special to indicate that it is one of the first or to allow a create promise to work beyond being after a delete
+      
        - Every Promise that comes in is enqueued and linked to the last promise in the queue.
-
+      
        - A promise can be skipped or canceled to save cycles.
-
+      
       Saved Cycles:
-        - Skipped - This       will only happen if async work comes in out of order. Where a pending create promise (un-executed) comes in
+        - Skipped - This will only happen if async work comes in out of order. Where a pending create promise (un-executed) comes in
           after a delete promise.
-        - Canceled - Where an inc      oming promise (un-e      xecuted promise) is of type delete and the any lastPromise is not a delete type.
-
-
+        - Canceled - Where an incoming promise (un-executed promise) is of type delete and the any lastPromise is not a delete type.
+      
+      
       NOTE:
       - You should not muck with existingPieces as its state is dependent on this functional loop.
-      - PromiseQueueManager should not be thought of as a class that has a life       expectancy (it has none). It's sole
-      purpose is to link, skip, and kill promises. It also m      anages the promise queue existingPieces.
+      - PromiseQueueManager should not be thought of as a class that has a life expectancy (it has none). It's sole
+      purpose is to link, skip, and kill promises. It also manages the promise queue existingPieces.
        */
-      PromiseQ      ueueManager = function(existingPiecesObj, sniffedPromise, cancelCb) {
+      PromiseQueueManager = function(existingPiecesObj, sniffedPromise, cancelCb) {
         var lastPromise, newPromise;
         if (!existingPiecesObj.existingPieces) {
           existingPiecesObj.existingPieces = new uiGmapDataStructures.Queue();
-          return existingPiecesObj.existingPieces.enqueue(kickPromise(sniffedPromise, cance      lC      b));
+          return existingPiecesObj.existingPieces.enqueue(kickPromise(sniffedPromise, cancelCb));
         } else {
           lastPromise = _.last(existingPiecesObj.existingPieces._content);
           if (doSkippPromise(sniffedPromise, lastPromise)) {
@@ -789,10 +789,10 @@ Nicholas McCready - https://twitter.com/nmccready
         Author: Nicholas McCready & jfriend00
         _async handles things asynchronous-like :), to allow the UI to be free'd to do other things
         Code taken from http://stackoverflow.com/questions/10344498/best-way-to-iterate-over-an-array-without-blocking-the-ui
-
+      
         The design of any functionality of _async is to be like lodash/underscore and replicate it but call things
         asynchronously underneath. Each should be sufficient for most things to be derived from.
-
+      
         Optional Asynchronous Chunking via promises.
        */
       doChunk = function(collection, chunkSizeOrDontChunk, pauseMilli, chunkCb, pauseCb, overallD, index, _keys) {
@@ -805,12 +805,12 @@ Nicholas McCready - https://twitter.com/nmccready
           }
           i = index;
           keepGoing = true;
-          while (keepGoing && cnt-- && i < (array ? array.      length : i + 1)) {
+          while (keepGoing && cnt-- && i < (array ? array.length : i + 1)) {
             val = _getIterateeValue(collection, array, i);
             keepGoing = angular.isFunction(val) ? true : logTryCatch(chunkCb, void 0, overallD, [val, i]);
             ++i;
           }
-                if (array) {
+          if (array) {
             if (keepGoing && i < array.length) {
               index = i;
               if (chunkSizeOrDontChunk) {
@@ -3885,7 +3885,7 @@ Original idea from: http://stackoverflow.com/questions/22758950/google-map-drawi
                 if ((ref = _this.opts) != null) {
                   ref.content = void 0;
                 }
-                wasOpen = _this.gObject.isOpen();
+                wasOpen = _this.gObject.isOpen;
                 _this.remove();
                 return _this.createGWin(wasOpen);
               }
@@ -3944,7 +3944,7 @@ Original idea from: http://stackoverflow.com/questions/22758950/google-map-drawi
             }
             this.gObject.setContent(this.opts.content);
             this.handleClick(((ref = this.scope) != null ? (ref1 = ref.options) != null ? ref1.forceClick : void 0 : void 0) || isOpen);
-            return this.doShow(this.gObject.isOpen());
+            return this.doShow(this.gObject.isOpen);
           }
         };
 
@@ -4030,7 +4030,7 @@ Original idea from: http://stackoverflow.com/questions/22758950/google-map-drawi
           show = (function(_this) {
             return function() {
               var isOpen, maybeMarker, pos;
-              if (!_this.gObject.isOpen()) {
+              if (!_this.gObject.isOpen) {
                 maybeMarker = _this.getGmarker();
                 if ((_this.gObject != null) && (_this.gObject.getPosition != null)) {
                   pos = _this.gObject.getPosition();
@@ -4042,7 +4042,7 @@ Original idea from: http://stackoverflow.com/questions/22758950/google-map-drawi
                   return;
                 }
                 _this.gObject.open(_this.gMap, maybeMarker);
-                isOpen = _this.gObject.isOpen();
+                isOpen = _this.gObject.isOpen;
                 if (_this.model.show !== isOpen) {
                   return _this.model.show = isOpen;
                 }
@@ -4081,7 +4081,7 @@ Original idea from: http://stackoverflow.com/questions/22758950/google-map-drawi
         };
 
         WindowChildModel.prototype.hideWindow = function() {
-          if ((this.gObject != null) && this.gObject.isOpen()) {
+          if ((this.gObject != null) && this.gObject.isOpen) {
             return this.gObject.close();
           }
         };
@@ -5901,7 +5901,7 @@ Original idea from: http://stackoverflow.com/questions/22758950/google-map-drawi
           being that we cannot tell the difference in Key String vs. a normal value string (TemplateUrl)
           we will assume that all scope values are string expressions either pointing to a key (propName) or using
           'self' to point the model as container/object of interest.
-
+          
           This may force redundant information into the model, but this appears to be the most flexible approach.
            */
           this.isIconVisibleOnClick = true;
@@ -6033,7 +6033,7 @@ Original idea from: http://stackoverflow.com/questions/22758950/google-map-drawi
               };
             })(this));
           } else {
-            $log.debug('pieceMeal: rebuildAll'          );
+            $log.debug('pieceMeal: rebuildAll');
             return this.rebuildAll(this.scope, true, true);
           }
         };
@@ -11555,11 +11555,11 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      The `id` is a unique identifier for the node, and should **not** change
 	      after it's added. It will be used for adding, retrieving and deleting
 	      related edges too.
-
+	      
 	      **Note** that, internally, the ids are kept in an object. JavaScript's
 	      object hashes the id `'2'` and `2` to the same key, so please stick to a
 	      simple id data type such as number or string.
-
+	      
 	      _Returns:_ the node object. Feel free to attach additional custom properties
 	      on it for graph algorithms' needs. **Undefined if node id already exists**,
 	      as to avoid accidental overrides.
@@ -11620,7 +11620,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      `addNode()`. `weight` is optional and defaults to 1. Ignoring it effectively
 	      makes this an unweighted graph. Under the hood, `weight` is just a normal
 	      property of the edge object.
-
+	      
 	      _Returns:_ the edge object created. Feel free to attach additional custom
 	      properties on it for graph algorithms' needs. **Or undefined** if the nodes
 	      of id `fromId` or `toId` aren't found, or if an edge already exists between
@@ -11717,7 +11717,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      **Note:** not the same as concatenating `getInEdgesOf()` and
 	      `getOutEdgesOf()`. Some nodes might have an edge pointing toward itself.
 	      This method solves that duplication.
-
+	      
 	      _Returns:_ an array of edge objects linked to the node, no matter if they're
 	      outgoing or coming. Duplicate edge created by self-pointing nodes are
 	      removed. Only one copy stays. Empty array if node has no edge.
@@ -11744,7 +11744,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      /*
 	      Traverse through the graph in an arbitrary manner, visiting each node once.
 	      Pass a function of the form `fn(nodeObject, nodeId)`.
-
+	      
 	      _Returns:_ undefined.
 	      */
 
@@ -11761,7 +11761,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      /*
 	      Traverse through the graph in an arbitrary manner, visiting each edge once.
 	      Pass a function of the form `fn(edgeObject)`.
-
+	      
 	      _Returns:_ undefined.
 	      */
 
@@ -11844,7 +11844,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    Heap.prototype.add = function(value) {
 	      /*
 	      **Remember:** rejects null and undefined for mentioned reasons.
-
+	      
 	      _Returns:_ the value added.
 	      */
 
@@ -11879,7 +11879,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    Heap.prototype.peekMin = function() {
 	      /*
 	      Check the smallest item without removing it.
-
+	      
 	      _Returns:_ the smallest item (the root).
 	      */
 
@@ -11971,14 +11971,14 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	(function() {
 	  var LinkedList;
 
-	  LinkedList = (functio	      n() {
+	  LinkedList = (function() {
 	    function LinkedList(valuesToAdd) {
 	      var value, _i, _len;
 	      if (valuesToAdd == null) {
 	        valuesToAdd = [];
 	      }
 	      /*
-	      Can pass an array of elements to link together during `	      new LinkedList()`
+	      Can pass an array of elements to link together during `new LinkedList()`
 	      initiation.
 	      */
 
@@ -12002,13 +12002,13 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    LinkedList.prototype.at = function(position) {
 	      /*
 	      Get the item at `position` (optional). Accepts negative index:
-
+	      
 	      ```js
 	      myList.at(-1); // Returns the last element.
 	      ```
 	      However, passing a negative index that surpasses the boundary will return
 	      undefined:
-
+	      
 	      ```js
 	      myList = new LinkedList([2, 6, 8, 3])
 	      myList.at(-5); // Undefined.
@@ -12044,10 +12044,10 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      /*
 	      Add a new item at `position` (optional). Defaults to adding at the end.
 	      `position`, just like in `at()`, can be negative (within the negative
-	      boundary). Position specifies the place the value's going to be, and the ol	      d
+	      boundary). Position specifies the place the value's going to be, and the old
 	      node will be pushed higher. `add(-2)` on list of size 7 is the same as
 	      `add(5)`.
-
+	      
 	      _Returns:_ item added.
 	      */
 
@@ -12083,7 +12083,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      /*
 	      Remove an item at index `position` (optional). Defaults to the last item.
 	      Index can be negative (within the boundary).
-
+	      
 	      _Returns:_ item removed.
 	      */
 
@@ -12122,7 +12122,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      /*
 	      Remove the item using its value instead of position. **Will remove the fist
 	      occurrence of `value`.**
-
+	      
 	      _Returns:_ the value, or undefined if value's not found.
 	      */
 
@@ -12142,7 +12142,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      } else if (currentNode === this.head) {
 	        this.head = this.head.next;
 	        this.head.prev = void 0;
-	      } else if	       (currentNode === this.tail) {
+	      } else if (currentNode === this.tail) {
 	        this.tail = this.tail.prev;
 	        this.tail.next = void 0;
 	      } else {
@@ -12165,14 +12165,14 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      other methods of this class, `startingPosition` (optional) can be as small
 	      as desired; a value of -999 for a list of size 5 will start searching
 	      normally, at the beginning.
-
+	      
 	      **Note:** searches forwardly, **not** backwardly, i.e:
-
+	      
 	      ```js
 	      var myList = new LinkedList([2, 3, 1, 4, 3, 5])
 	      myList.indexOf(3, -3); // Returns 4, not 1
 	      ```
-	      _Returns:_ index of item fou	      nd, or -1 if not found.
+	      _Returns:_ index of item found, or -1 if not found.
 	      */
 
 	      if (((this.head.value == null) && !this.head.next) || startingPosition >= this.size) {
@@ -12188,7 +12188,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	        currentNode = currentNode.next;
 	        position++;
 	      }
-	      if (positi	      on === this.size) {
+	      if (position === this.size) {
 	        return -1;
 	      } else {
 	        return position;
@@ -12270,7 +12270,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      constructor.
 	      */
 
-	      var key, v	      alue;
+	      var key, value;
 	      this._content = {};
 	      this._itemId = 0;
 	      this._id = Map._newMapId();
@@ -12292,11 +12292,11 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      your own. The `makeHash` parameter is optional and accepts a boolean
 	      (defaults to `false`) indicating whether or not to produce a new hash (for
 	      the first use, naturally).
-
+	      
 	      _Returns:_ the hash.
 	      */
 
-	      type = _ex	      tractDataType(key);
+	      type = _extractDataType(key);
 	      if (_isSpecialType(key)) {
 	        propertyForMap = SPECIAL_TYPE_KEY_PREFIX + this._id;
 	        if (makeHash && !key[propertyForMap]) {
@@ -12332,7 +12332,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    Map.prototype.has = function(key) {
 	      /*
 	      Check whether a value exists for the key.
-
+	      
 	      _Returns:_ true or false.
 	      */
 
@@ -12342,7 +12342,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    Map.prototype["delete"] = function(key) {
 	      /*
 	      Remove the (key, value) pair.
-
+	      
 	      _Returns:_ **true or false**. Unlike most of this library, this method
 	      doesn't return the deleted value. This is so that it conforms to the future
 	      JavaScript `map.delete()`'s behavior.
@@ -12364,7 +12364,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    Map.prototype.forEach = function(operation) {
 	      /*
 	      Traverse through the map. Pass a function of the form `fn(key, value)`.
-
+	      
 	      _Returns:_ undefined.
 	      */
 
@@ -12425,7 +12425,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 
 	## Properties:
 
-	- size: The total number of	       items.
+	- size: The total number of items.
 	*/
 
 
@@ -12437,7 +12437,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      if (initialArray == null) {
 	        initialArray = [];
 	      }
-	   	         /*
+	      /*
 	      Pass an optional array to be transformed into a queue. The item at index 0
 	      is the first to be dequeued.
 	      */
@@ -12479,7 +12479,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    Queue.prototype.peek = function() {
 	      /*
 	      Check the next item to be dequeued, without removing it.
-
+	      
 	      _Returns:_ the item.
 	      */
 
@@ -12501,7 +12501,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 
 	/*
 	Credit to Wikipedia's article on [Red-black
-	tree](http://en.wikipedia.org/wiki/Red–black_tre	      e)
+	tree](http://en.wikipedia.org/wiki/Red–black_tree)
 
 	**Note:** doesn't handle duplicate entries, undefined and null. This is by
 	design.
@@ -12557,7 +12557,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      for (_i = 0, _len = valuesToAdd.length; _i < _len; _i++) {
 	        value = valuesToAdd[_i];
 	        if (value != null) {
-	          this.add(value)	      ;
+	          this.add(value);
 	        }
 	      }
 	    }
@@ -12566,7 +12566,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      /*
 	      Again, make sure to not pass a value already in the tree, or undefined, or
 	      null.
-
+	      
 	      _Returns:_ value added.
 	      */
 
@@ -12600,7 +12600,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	              } else {
 	                nodeToInsert._parent = node;
 	                node._right = nodeToInsert;
-	                return STOP_SEA	      RCHING;
+	                return STOP_SEARCHING;
 	              }
 	            }
 	          }
@@ -12651,7 +12651,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 
 	      var foundNode;
 	      foundNode = _findNode(this._root, function(node) {
-	     	         if (value === node.value) {
+	        if (value === node.value) {
 	          return NODE_FOUND;
 	        } else if (value < node.value) {
 	          return NODE_TOO_BIG;
@@ -12669,7 +12669,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    RedBlackTree.prototype.peekMin = function() {
 	      /*
 	      Check the minimum value without removing it.
-
+	      
 	      _Returns:_ the minimum value.
 	      */
 
@@ -12680,7 +12680,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    RedBlackTree.prototype.peekMax = function() {
 	      /*
 	      Check the maximum value without removing it.
-
+	      
 	      _Returns:_ the maximum value.
 	      */
 
@@ -12778,7 +12778,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	              break;
 	            }
 	            sibling = _siblingOf(successor);
-	            if ((sibling != null ? sibling._color : vo	      id 0) === RED) {
+	            if ((sibling != null ? sibling._color : void 0) === RED) {
 	              successor._parent._color = RED;
 	              sibling._color = BLACK;
 	              if (_isLeft(successor)) {
@@ -12798,7 +12798,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	              successor = successor._parent;
 	              continue;
 	            }
-	            if (successor._parent._color === RED && (!sibling || (sibling._color === BLACK && (!sibling._left || ((_ref1 = sibling._left) != null ? _ref1._color : void 	      0) === BLACK) && (!sibling._right || ((_ref2 = sibling._right) != null ? _ref2._color : void 0) === BLACK)))) {
+	            if (successor._parent._color === RED && (!sibling || (sibling._color === BLACK && (!sibling._left || ((_ref1 = sibling._left) != null ? _ref1._color : void 0) === BLACK) && (!sibling._right || ((_ref2 = sibling._right) != null ? _ref2._color : void 0) === BLACK)))) {
 	              if (sibling != null) {
 	                sibling._color = RED;
 	              }
@@ -12813,7 +12813,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	                }
 	                this._rotateRight(sibling);
 	              } else if (!_isLeft(successor) && (!sibling._left || sibling._left._color === BLACK) && ((_ref5 = sibling._right) != null ? _ref5._color : void 0) === RED) {
-	        	              sibling._color = RED;
+	                sibling._color = RED;
 	                if ((_ref6 = sibling._right) != null) {
 	                  _ref6._color = BLACK;
 	                }
@@ -12901,7 +12901,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      if (comparisonResult === NODE_TOO_BIG) {
 	        currentNode = currentNode._left;
 	      } else if (comparisonResult === NODE_TOO_SMALL) {
-	        currentNode = currentNode._rig	      ht;
+	        currentNode = currentNode._right;
 	      } else if (comparisonResult === STOP_SEARCHING) {
 	        break;
 	      }
@@ -12987,7 +12987,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 
 	(function() {
 	  var Queue, Trie, WORD_END, _hasAtLeastNChildren,
-	    __hasProp = {}.hasOwn	      Property;
+	    __hasProp = {}.hasOwnProperty;
 
 	  Queue = __webpack_require__(6);
 
@@ -13014,7 +13014,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    Trie.prototype.add = function(word) {
 	      /*
 	      Add a whole string to the trie.
-
+	      
 	      _Returns:_ the word added. Will return undefined (without adding the value)
 	      if the word passed is null or undefined.
 	      */
@@ -13063,7 +13063,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	    Trie.prototype.longestPrefixOf = function(word) {
 	      /*
 	      Find all words containing the prefix. The word itself counts as a prefix.
-
+	      
 	      ```js
 	      var trie = new Trie;
 	      trie.add('hello');
@@ -13071,7 +13071,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      trie.longestPrefixOf('hello'); // 'hello'
 	      trie.longestPrefixOf('helloha!'); // 'hello'
 	      ```
-
+	      
 	      _Returns:_ the prefix string, or empty string if no prefix found.
 	      */
 
@@ -13096,7 +13096,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      /*
 	      Find all words containing the prefix. The word itself counts as a prefix.
 	      **Watch out for edge cases.**
-
+	      
 	      ```js
 	      var trie = new Trie;
 	      trie.wordsWithPrefix(''); // []. Check later case below.
@@ -13108,15 +13108,15 @@ window['RichMarkerPosition'] = RichMarkerPosition;
 	      trie.add('bear');
 	      trie.add('z');
 	      trie.add('zebra');
-	      trie.word	      sWithPrefix('hel'); // ['hell', 'hello']
+	      trie.wordsWithPrefix('hel'); // ['hell', 'hello']
 	      ```
-
+	      
 	      _Returns:_ an array of strings, or empty array if no word found.
 	      */
 
 	      var accumulatedLetters, currentNode, letter, node, queue, subNode, words, _i, _len, _ref;
 	      if (prefix == null) {
-	        return 	      [];
+	        return [];
 	      }
 	      (prefix != null) || (prefix = '');
 	      words = [];
@@ -13217,7 +13217,7 @@ window['RichMarkerPosition'] = RichMarkerPosition;
   var self = this;
   /* istanbul ignore next */
   +function(){
-
+    
 /** @preserve OverlappingMarkerSpiderfier
 https://github.com/jawj/OverlappingMarkerSpiderfier
 Copyright (c) 2011 - 2013 George MacKerron
@@ -13478,7 +13478,7 @@ this['OverlappingMarkerSpiderfier'] = (function() {
         clear = function() {
           return $this['unspiderfy']();
         };
-        wi	      ndow.clearTimeout(p.timeout);
+        window.clearTimeout(p.timeout);
         p.timeout = setTimeout(clear, 3000);
       } else {
         this['unspiderfy']();
@@ -13521,13 +13521,13 @@ this['OverlappingMarkerSpiderfier'] = (function() {
     if (firstOnly == null) {
       firstOnly = false;
     }
-    if (this.projHelper.getPr	      ojection() == null) {
+    if (this.projHelper.getProjection() == null) {
       throw "Must wait for 'idle' event on map before calling markersNearMarker";
     }
     nDist = this['nearbyDistance'];
     pxSq = nDist * nDist;
     markerPt = this.llToPt(marker.position);
-    markers = 	      [];
+    markers = [];
     ref1 = this.markers;
     for (l = 0, len1 = ref1.length; l < len1; l++) {
       m = ref1[l];
@@ -13548,7 +13548,7 @@ this['OverlappingMarkerSpiderfier'] = (function() {
   p['markersNearAnyOtherMarker'] = function() {
     var i, i1, i2, l, len1, len2, len3, m, m1, m1Data, m2, m2Data, mData, n, nDist, pxSq, q, ref1, ref2, ref3, results;
     if (this.projHelper.getProjection() == null) {
-      throw "Must wai	      t for 'idle' event on map before calling markersNearAnyOtherMarker";
+      throw "Must wait for 'idle' event on map before calling markersNearAnyOtherMarker";
     }
     nDist = this['nearbyDistance'];
     pxSq = nDist * nDist;
@@ -13559,7 +13559,7 @@ this['OverlappingMarkerSpiderfier'] = (function() {
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         m = ref1[l];
         results.push({
-          pt: this.llToPt((ref2 = (ref3 = 	      m['_omsData']) != null ? ref3.usualPosition : void 0) != null ? ref2 : m.position),
+          pt: this.llToPt((ref2 = (ref3 = m['_omsData']) != null ? ref3.usualPosition : void 0) != null ? ref2 : m.position),
           willSpiderfy: false
         });
       }
@@ -13657,7 +13657,7 @@ this['OverlappingMarkerSpiderfier'] = (function() {
         marker = nearestMarkerDatum.marker;
         leg = new gm.Polyline({
           map: this.map,
-              path: [marker.position, footLl],
+          path: [marker.position, footLl],
           strokeColor: this['legColors']['usual'][this.map.mapTypeId],
           strokeWeight: this['legWeight'],
           zIndex: this['usualLegZIndex']
